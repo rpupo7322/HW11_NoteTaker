@@ -22,7 +22,7 @@
     <nav class="navbar navbar-dark bg-dark">
       <a class="navbar-brand" href="/">Note Taker </a>
       <div class="icons">
-        <i class="fas fa-save text-light save-note"></i>
+        <i class="fas fa-save text-light save-note" id = 'submit'></i>
         <i class="fas fa-plus text-light new-note"></i>
       </div>
     </nav>
@@ -34,16 +34,69 @@
           </div>
         </div>
         <div class="col-8">
-          <input
+          <input id = 'note-title'
             class="note-title"
             placeholder="Note Title"
             maxlength="28"
             type="text"
           />
-          <textarea class="note-textarea" placeholder="Note Text"></textarea>
+          <textarea id = 'note-textarea' class="note-textarea" placeholder="Note Text"></textarea>
         </div>
       </div>
     </div>
     <script src="/assets/js/index.js"></script>
   </body>
 </html>
+
+
+<!-- BELOW CODE IS CRITICAL. IT HANDLES HOW FORM DATA IS SENT TO OUR SERVER -->
+<script type="text/javascript">
+  // In this code below we create the Front-end JavaScript which "POSTS" our form data to our express server.
+  // In essence, when the user hits submit, document.getElementById grabs all of the fields then sends a post request to our api
+  // Our api recognizes the route (/api/tables)... and then runs the associated code (found in api-routes.js).
+  // In this case the associated code "saves" the data to the table-data.js file or waitinglist-data.js file
+  const submitBtn = document.getElementById('submit');
+  submitBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+
+    // Grab form elements
+    let newNote = {
+      noteTitle: document.getElementById('note-title').value.trim(),
+      noteText: document.getElementById('note-textarea').value.trim(),
+
+    };
+
+    console.log('submitBtn.onclick -> newNote', newNote);
+
+    // Here we make our fetch by providing a URL, the object we want to send as the body object, then we have a "promise".
+    // The promise is the response of the server. In our case, we set up code in api-routes that "returns" true or false
+    // depending on if a tables is available or not.
+
+    fetch('/api/notes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newNote),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        document.getElementById('note-title').value = '';
+        document.getElementById('note-textarea').value = '';
+        // if (data) {
+        //   // If a table is available... tell user they are booked.
+
+        //   alert('Yay! You are officially booked!');
+        // } else {
+        //   // Otherwise, tell the  user they are on the wait list
+
+        //   alert('Sorry you are on the wait list');
+
+        //   // Clear the form
+        // }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  });
+</script>
