@@ -1,8 +1,9 @@
 // LOAD DATA
 // We are linking our routes to a series of "data" sources.
 // These data sources hold arrays of information on table-data, waitinglist, etc.
-
+const fs = require('fs');
 const database = require('../db/db.json');
+const { v4: uuidv4 } = require('uuid');
 // const waitListData = require('../data/waitinglistData');
 
 // ROUTING
@@ -14,7 +15,10 @@ module.exports = (app) => {
   // (ex: localhost:PORT/api/admin... they are shown a JSON of the data in the table)
   // ---------------------------------------------------------------------------
 
-  app.get('/api/notes', (req, res) => res.json(database));
+
+
+  app.get('/api/notes', (req, res) => res.json(database)
+ );
 
   // app.get('/api/waitlist', (req, res) => res.json(waitListData));
 
@@ -30,7 +34,10 @@ module.exports = (app) => {
     // Note the code here. Our "server" will respond to requests and let users know if they have a table or not.
     // It will do this by sending out the value "true" have a table
     // req.body is available since we're using the body parsing middleware
-    console.log(req.body)
+    req.body.id = uuidv4();
+    database.push(req.body)
+    fs.writeFile('./db/db.json', JSON.stringify(database), (err) =>
+      err ? console.error(err) : console.log('Note has been saved'))
     res.json(true);
 
     // if (tableData.length < 5) {
